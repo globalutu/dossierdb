@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Contact;
 use App\Models\Testimonial;
 use App\Models\Service;
+use App\Models\Content;
 use App\Models\Team;
 use App\Models\Utilisateur;
 use Illuminate\Support\Facades\Storage;
@@ -25,13 +26,13 @@ class PageController extends Controller
         $subscribers = Newsletter::all();
         $services = Service::all();
         $testimonials = Testimonial::all();
-
+        $Contents = Content::first();
 
         if (!$contact) {
             return redirect()->back()->with('error', 'Aucun contact trouvé.');
         }
 
-        return view('viewadmindste.dashfront', compact('contact', 'subscribers', 'users', 'testimonials', 'services', 'teamMembers'));
+        return view('viewadmindste.dashfront', compact('Contents', 'contact', 'subscribers', 'users', 'testimonials', 'services', 'teamMembers'));
     }
 
     /**

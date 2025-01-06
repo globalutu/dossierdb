@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Testimonial;
+use App\Models\Content;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\File;
 
 class TestimonialController extends Controller
@@ -79,5 +81,33 @@ class TestimonialController extends Controller
         $testimonial->delete();
 
         return redirect()->route('sev')->with('success', 'Testimonial deleted successfully!');
+    }
+    public function updateg(Request $request, $id)
+    {
+        $request->validate([
+            'titre' => 'required|string|max:255',
+            'content' => 'required|string',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validation de l'image
+        ]);
+
+        $content = Content::findOrFail($id);
+        $content->titre = $request->input('titre');
+        $content->content = $request->input('content');
+
+        // Gestion de l'image
+        if ($request->hasFile('image')) {
+            // Supprime l'ancienne image si elle existe
+            if ($content->image && Storage::exists('public/' . $content->image)) {
+                Storage::delete('public/' . $content->image);
+            }
+
+            // Enregistre la nouvelle image
+            $imagePath = $request->file('image')->store('contents', 'public');
+            $content->image = $imagePath;
+        }
+
+        $content->save();
+
+        return redirect()->route('dashboard')->with('success', 'Contenu mis à jour avec succès.');
     }
 }

@@ -109,5 +109,5 @@ Route::group([
 	Route::get('/edit/{id}', 'App\Http\Controllers\TestimonialController@edit')->name('testimonials.edit'); // Affiche un témoignage pour modification
 	Route::post('/update/{id}', 'App\Http\Controllers\TestimonialController@update')->name('testimonials.update'); // Met à jour un témoignage
 	Route::delete('/delete/{id}', 'App\Http\Controllers\TestimonialController@destroy')->name('testimonials.destroy'); // Supprime un témoignage
-
+	Route::put('/content/update/{id}', 'App\Http\Controllers\TestimonialController@updateg')->name('content.update');
 });
