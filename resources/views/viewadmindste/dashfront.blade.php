@@ -419,7 +419,7 @@
                 <!-- Team Management Section -->
                 <div class="col-md-6">
                     <div class="card">
-                        <div class="card-header bg-secondary text-white text-center py-4">
+                        <div class="card-header  text-white text-center py-4 " style="background-color: #8a2be2;">
                             <h2 class="h3 font-weight-bold">Gérer les Membres de l'Équipe</h2>
                         </div>
                         <button class="btn btn-primary mb-3" data-toggle="modal" data-target="#addMemberModal">Ajouter un
