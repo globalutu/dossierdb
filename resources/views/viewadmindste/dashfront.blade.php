@@ -1,59 +1,28 @@
 @extends('templatedste._temp')
 
 @section('css')
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&subset=latin,cyrillic-ext" rel="stylesheet"
-        type="text/css">
-    <link href="cssdste/bootstrap/css/bootstrap.css" rel="stylesheet">
-    <link href="cssdste/node-waves/waves.css" rel="stylesheet" />
-    <link href="cssdste/animate-css/animate.css" rel="stylesheet" />
-    <link href="cssdste/css/style.css" rel="stylesheet">
-    <link href="cssdste/css/themes/all-themes.css" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.1/dist/sweetalert2.min.css">
-    <style>
-        #user,
-        #position,
-        #facebook_url,
-        #twitter_url,
-        #linkedin_url {
-            max-width: 100%;
-            /* Ajuste à la largeur du conteneur parent */
-        }
-
-        .modal-dialog {
-            max-width: 600px;
-            /* Limite la largeur du modal */
-        }
-
-        .modal-content {
-            padding: 1rem;
-            /* Espacement interne pour éviter le chevauchement */
-        }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>>Tableau de bord</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="bootstrap.min.css">
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="style.css">
 @endsection
 
 @section('content')
-    <div class="container-fluid">
-        <div class="content p-5">
-            <div class="block-header">
-                @include('flash::message')
-                <h2>
-                    <a style="color:#795548" href="{{ route('dashboard') }}">Tableau de bord</a> / Manage Testimonials and
-                    Contacts
-                </h2>
-                <header class="d-flex justify-content-between align-items-center pb-4">
-                    <div>
-                        <button class="btn btn-info" data-toggle="modal" data-target="#newsletterModal">View
-                            Newsletters</button>
-                        <button class="btn btn-success" data-toggle="modal" data-target="#editContactModal">Edit
-                            Contact</button>
-                        <button class="btn btn-primary" data-toggle="modal" data-target="#addTestimonialModal">Add
-                            Testimonial</button>
-                        <button class="btn btn-warning" data-toggle="modal" data-target="#contentEditorModal">Éditeur de
-                            Contenu</button>
-                    </div>
-                </header>
-            </div>
+    <div class="container mt-4">
+        <!-- Header Section -->
+        <header class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="text-primary">Tableau de bord Dashfront</h1>
+        </header>
+
+        <!-- Buttons Section -->
+        <div class="btn-group mb-4 w-100" role="group">
+            <button class="btn btn-info" data-toggle="modal" data-target="#newsletterModal">View Newsletters</button>
+            <button class="btn btn-success" data-toggle="modal" data-target="#editContactModal">Edit Contact</button>
+            <button class="btn btn-warning" data-toggle="modal" data-target="#contentEditorModal">Éditeur de
+                Contenu</button>
 
             <!-- Modal Éditeur de Contenu -->
             <div class="modal fade" id="contentEditorModal" tabindex="-1" role="dialog"
@@ -113,136 +82,6 @@
                 </div>
             </div>
 
-
-            <!-- Fin du modal -->
-        </div>
-
-
-
-        <!-- Testimonials Section -->
-
-        <div class="row clearfix">
-
-            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                <div class="card">
-                    <div class="header">
-                        <h5 class="card-title mb-3"><i class="bi bi-chat-left-quote"></i> Témoignages</h5>
-                        <table class="table table-hover">
-                            <thead class="table-dark">
-                                <tr>
-                                    <th>#</th>
-                                    <th>Nom du Client</th>
-                                    <th>Profession</th>
-                                    <th>Image</th>
-                                    <th>Témoignage</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach ($testimonials as $testimonial)
-                                    <tr>
-                                        <td>{{ $testimonial->id }}</td>
-                                        <td>{{ $testimonial->clientName }}</td>
-                                        <td>{{ $testimonial->clientProfession }}</td>
-                                        <td>
-                                            @if ($testimonial->image)
-                                                <img src="{{ asset('storage/' . $testimonial->image) }}"
-                                                    class="img-fluid rounded" style="width: 50px;" data-toggle="modal"
-                                                    data-target="#viewImageModal{{ $testimonial->id }}">
-                                            @else
-                                                <span class="text-muted">Pas d'image</span>
-                                            @endif
-                                        </td>
-                                        <td>{{ $testimonial->testimonialText }}</td>
-                                        <td>
-                                            <button class="btn btn-sm btn-warning" data-toggle="modal"
-                                                data-target="#editTestimonialModal{{ $testimonial->id }}">Modifier</button>
-                                            <form action="{{ route('testimonials.destroy', $testimonial->id) }}"
-                                                method="POST" style="display:inline;">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button class="btn btn-sm btn-danger delete-btn">Supprimer</button>
-                                            </form>
-                                        </td>
-                                    </tr>
-
-                                    <!-- Modal pour voir l'image -->
-                                    <div class="modal fade" id="viewImageModal{{ $testimonial->id }}" tabindex="-1">
-                                        <div class="modal-dialog modal-dialog-centered">
-                                            <div class="modal-content">
-                                                <div class="modal-body text-center">
-                                                    @if ($testimonial->image)
-                                                        <img src="{{ asset('storage/' . $testimonial->image) }}"
-                                                            class="img-fluid rounded">
-                                                    @else
-                                                        <p>Aucune image disponible</p>
-                                                    @endif
-                                                </div>
-                                                <div class="modal-footer">
-                                                    <button type="button" class="btn btn-secondary"
-                                                        data-dismiss="modal">Fermer</button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Edit Testimonial Modal -->
-            <div class="modal fade" id="editTestimonialModal{{ $testimonial->id }}" tabindex="-1">
-                <div class="modal-dialog">
-                    <form action="{{ route('testimonials.update', $testimonial->id) }}" method="POST"
-                        enctype="multipart/form-data" class="modal-content">
-                        @csrf
-                        @method('POST')
-                        <div class="modal-header">
-                            <h5 class="modal-title">Modifier le témoignage</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Fermer">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        <div class="modal-body">
-                            <div class="mb-3">
-                                <label for="editClientName{{ $testimonial->id }}" class="form-label">Nom du
-                                    client</label>
-                                <input type="text" class="form-control" id="editClientName{{ $testimonial->id }}"
-                                    name="editClientName" value="{{ $testimonial->clientName }}" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="editClientProfession{{ $testimonial->id }}"
-                                    class="form-label">Profession</label>
-                                <input type="text" class="form-control"
-                                    id="editClientProfession{{ $testimonial->id }}" name="editClientProfession"
-                                    value="{{ $testimonial->clientProfession }}" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="editImage{{ $testimonial->id }}" class="form-label">Image</label>
-                                <input type="file" class="form-control" id="editImage{{ $testimonial->id }}"
-                                    name="editImage">
-                                @if ($testimonial->image)
-                                    <small class="text-muted">Image actuelle : {{ $testimonial->image }}</small>
-                                @endif
-                            </div>
-                            <div class="mb-3">
-                                <label for="editTestimonialText{{ $testimonial->id }}"
-                                    class="form-label">Témoignage</label>
-                                <textarea class="form-control" id="editTestimonialText{{ $testimonial->id }}" name="editTestimonialText"
-                                    rows="3" required>{{ $testimonial->testimonialText }}</textarea>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="submit" class="btn btn-warning">Enregistrer les modifications</button>
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-
-            <!-- Newsletters Modal -->
             <div class="modal fade" id="newsletterModal" tabindex="-1">
                 <div class="modal-dialog modal-lg">
                     <div class="modal-content">
@@ -286,8 +125,8 @@
             <!-- Modal Modifier Contact -->
             <div class="modal fade" id="editContactModal" tabindex="-1">
                 <div class="modal-dialog">
-                    <form action="{{ route('contacts.update', $contact->id) }}" method="POST"
-                        enctype="multipart/form-data" class="modal-content">
+                    <form action="{{ route('contacts.update', $contact->id) }}" method="POST" enctype="multipart/form-data"
+                        class="modal-content">
                         @csrf
                         @method('PUT')
                         <div class="modal-header bg-success text-white">
@@ -352,306 +191,372 @@
                     </form>
                 </div>
             </div>
-
-
-
-
-            <!-- Add Testimonial Modal -->
-            <div class="modal fade" id="addTestimonialModal" tabindex="-1">
-                <div class="modal-dialog">
-                    <form action="{{ route('testimonials.store') }}" method="POST" enctype="multipart/form-data"
-                        class="modal-content">
-                        @csrf
-                        <div class="modal-header">
-                            <h5 class="modal-title">Ajouter un Nouveau Témoignage</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Fermer">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        <div class="modal-body">
-                            <div class="mb-3">
-                                <label for="clientName" class="form-label">Nom du Client</label>
-                                <input type="text" class="form-control" id="clientName" name="clientName" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="clientProfession" class="form-label">Profession</label>
-                                <input type="text" class="form-control" id="clientProfession" name="clientProfession"
-                                    required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="image" class="form-label">Image</label>
-                                <input type="file" class="form-control" id="image" name="image">
-                            </div>
-                            <div class="mb-3">
-                                <label for="testimonialText" class="form-label">Témoignage</label>
-                                <textarea class="form-control" id="testimonialText" name="testimonialText" rows="3" required></textarea>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="submit" class="btn btn-primary">Ajouter le Témoignage</button>
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-
         </div>
-    </div>
 
-    <div class="content p-5">
-        <!-- En-tête de la page -->
-        <header class="d-flex justify-content-between align-items-center pb-4">
-            <h1 class="h3">Gérer les Membres de l'Équipe / les Services</h1>
-            <div>
-                <button class="btn btn-primary" data-toggle="modal" data-target="#addMemberModal">Ajouter un Nouveau
-                    Membre</button>
-            </div>
-        </header>
-
-        <!-- Section Équipe -->
-        <div class="card border-0 shadow-sm">
-            <div class="card-body">
-                <h5 class="card-title mb-3"><i class="bi bi-person"></i> </h5>
-                <table class="table table-hover">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>#</th>
-                            <th>Nom du Membre</th>
-                            <th>Poste</th>
-                            <th>Image</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($teamMembers as $member)
-                            <tr>
-                                <td>{{ $member->id }}</td>
-                                <td>{{ $member->name }}</td>
-                                <td>{{ $member->position }}</td>
-                                <td>
-                                    @if ($member->image)
-                                        <img src="{{ asset('storage/' . $member->image) }}" class="img-fluid rounded"
-                                            style="width: 50px;" data-toggle="modal"
-                                            data-target="#viewImageModal{{ $member->id }}">
-                                    @else
-                                        <span class="text-muted">Aucune Image</span>
-                                    @endif
-                                </td>
-                                <td>
-
-                                    <form action="{{ route('team.destroy', $member->id) }}" method="POST"
-                                        style="display:inline;">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button class="btn btn-sm btn-danger delete-btn">Supprimer</button>
-                                    </form>
-                                </td>
-                            </tr>
-
-                            <!-- Modal pour voir l'image -->
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-
-    <!-- Add Member Modal -->
-    <!-- Add Member Modal -->
-    <div class="modal fade" id="addMemberModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <form action="{{ route('team.store') }}" method="POST" enctype="multipart/form-data"
-                class="modal-content">
-                @csrf
-                <!-- En-tête du modal -->
-                <div class="modal-header bg-info text-white">
-                    <h5 class="modal-title">Ajouter un Nouveau Membre</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-
-                <!-- Corps du modal -->
-                <div class="modal-body">
-                    <!-- Champ Utilisateur -->
-                    <div class="modal-body">
-                        <!-- Champ Utilisateur -->
-                        <div class="form-group">
-                            <label for="user" class="form-label">Utilisateur</label>
-                            <select class="form-control" id="user" name="name" required>
-                                <option value="" selected>Sélectionner un utilisateur</option>
-                                @foreach ($users as $user)
-                                    <option value="{{ $user->nom . ' ' . $user->prenom }}">
-                                        {{ $user->nom }} {{ $user->prenom }}
-                                    </option>
-                                @endforeach
-                            </select>
+        <!-- Main Content -->
+        <main>
+            <!-- Services Section -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header bg-info text-white text-center py-4">
+                            <h2 class="h3 font-weight-bold">Nos Services</h2>
                         </div>
-                    </div>
+                        <div class="card-body">
 
-                    <!-- Champ Position -->
-                    <div class="form-group">
-                        <label for="position" class="form-label">Poste</label>
-                        <input type="text" class="form-control" id="position" name="position"
-                            placeholder="Exemple : Manager" required>
-                    </div>
-
-                    <!-- Lien Facebook -->
-                    <div class="form-group">
-                        <label for="facebook_url" class="form-label">URL Facebook</label>
-                        <input type="url" class="form-control" id="facebook_url" name="facebook_url"
-                            placeholder="https://facebook.com/username">
-                    </div>
-
-                    <!-- Lien Twitter -->
-                    <div class="form-group">
-                        <label for="twitter_url" class="form-label">URL Twitter</label>
-                        <input type="url" class="form-control" id="twitter_url" name="twitter_url"
-                            placeholder="https://twitter.com/username">
-                    </div>
-
-                    <!-- Lien LinkedIn -->
-                    <div class="form-group">
-                        <label for="linkedin_url" class="form-label">URL LinkedIn</label>
-                        <input type="url" class="form-control" id="linkedin_url" name="linkedin_url"
-                            placeholder="https://linkedin.com/in/username">
-                    </div>
-
-                    <!-- Champ Image -->
-                    <div class="form-group">
-                        <label for="image" class="form-label">Image</label>
-                        <input type="file" class="form-control-file" id="image" name="image">
-                    </div>
-                </div>
-
-                <!-- Pied du modal -->
-                <div class="modal-footer">
-                    <button type="submit" class="btn btn-primary">Ajouter le Membre</button>
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-
-    <!-- Edit Member Modal -->
-
-
-    <div class="content p-5">
-        <div class="row clearfix">
-
-            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                <div class="card">
-                    <div class="header">
-
-                        <!-- Section de Gestion des Services -->
-                        <div class="card border-0 shadow-sm">
-                            <div class="card-body">
-                                <table class="table table-hover">
-                                    <thead class="table-dark">
+                            <table class="table table-bordered table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Nom du Service</th>
+                                        <th>Image</th>
+                                        <th>Description</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($services as $service)
                                         <tr>
-                                            <th>#</th>
-                                            <th>Nom du Service</th>
-                                            <th>Image</th>
-                                            <th>Description</th>
-                                            <th>Actions</th>
+                                            <td>{{ $service->id }}</td>
+                                            <td>{{ $service->libelle }}</td>
+                                            <td>
+                                                @if ($service->image)
+                                                    <img src="{{ asset('storage/' . $service->image) }}"
+                                                        class="img-fluid rounded" style="width: 50px;"
+                                                        data-toggle="modal"
+                                                        data-target="#viewImageModal{{ $service->id }}">
+                                                @else
+                                                    <span class="text-muted">Pas d'Image</span>
+                                                @endif
+                                            </td>
+                                            <td>{{ $service->description }}</td>
+                                            <td>
+                                                <button class="btn btn-sm btn-warning" data-toggle="modal"
+                                                    data-target="#editServiceModal{{ $service->id }}">Modifier</button>
+                                            </td>
                                         </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach ($services as $service)
-                                            <tr>
-                                                <td>{{ $service->id }}</td>
-                                                <td>{{ $service->libelle }}</td>
-                                                <td>
-                                                    @if ($service->image)
-                                                        <img src="{{ asset('storage/' . $service->image) }}"
-                                                            class="img-fluid rounded" style="width: 50px;"
-                                                            data-toggle="modal"
-                                                            data-target="#viewImageModal{{ $service->id }}">
-                                                    @else
-                                                        <span class="text-muted">Pas d'Image</span>
-                                                    @endif
-                                                </td>
-                                                <td>{{ $service->description }}</td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-warning" data-toggle="modal"
-                                                        data-target="#editServiceModal{{ $service->id }}">Modifier</button>
-                                                </td>
-                                            </tr>
 
-                                            <!-- Modal pour Modifier le Service -->
-                                            <div class="modal fade" id="editServiceModal{{ $service->id }}"
-                                                tabindex="-1">
-                                                <div class="modal-dialog">
-                                                    <form action="{{ route('update', $service->id) }}" method="POST"
-                                                        enctype="multipart/form-data" class="modal-content">
-                                                        @csrf
-                                                        @method('PATCH') <!-- Utilisez PATCH pour une mise à jour -->
-                                                        <div class="modal-header">
-                                                            <h5 class="modal-title">Modifier le Service</h5>
-                                                            <button type="button" class="close" data-dismiss="modal"
-                                                                aria-label="Fermer"><span
-                                                                    aria-hidden="true">&times;</span></button>
-                                                        </div>
-                                                        <div class="modal-body">
-                                                            <div class="mb-3">
-                                                                <label for="editServiceImage{{ $service->id }}"
-                                                                    class="form-label">Image</label>
-                                                                <input type="file" class="form-control"
-                                                                    id="editServiceImage{{ $service->id }}"
-                                                                    name="editServiceImage">
-                                                                @if ($service->image)
-                                                                    <small class="text-muted">Image Actuelle :
-                                                                        {{ $service->image }}</small>
-                                                                @endif
-                                                            </div>
-                                                        </div>
-                                                        <div class="modal-footer">
-                                                            <button type="submit" class="btn btn-warning">Enregistrer
-                                                                les
-                                                                Modifications</button>
-                                                            <button type="button" class="btn btn-secondary"
-                                                                data-dismiss="modal">Fermer</button>
-                                                        </div>
-                                                    </form>
-                                                </div>
-                                            </div>
-
-                                            <!-- Modal pour Visualiser l'Image -->
-                                            <div class="modal fade" id="viewImageModal{{ $service->id }}"
-                                                tabindex="-1">
-                                                <div class="modal-dialog modal-dialog-centered">
-                                                    <div class="modal-content">
-                                                        <div class="modal-body text-center">
+                                        <div class="modal fade" id="editServiceModal{{ $service->id }}" tabindex="-1">
+                                            <div class="modal-dialog">
+                                                <form action="{{ route('update', $service->id) }}" method="POST"
+                                                    enctype="multipart/form-data" class="modal-content">
+                                                    @csrf
+                                                    @method('PATCH') <!-- Utilisez PATCH pour une mise à jour -->
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title">Modifier le Service</h5>
+                                                        <button type="button" class="close" data-dismiss="modal"
+                                                            aria-label="Fermer"><span
+                                                                aria-hidden="true">&times;</span></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <div class="mb-3">
+                                                            <label for="editServiceImage{{ $service->id }}"
+                                                                class="form-label">Image</label>
+                                                            <input type="file" class="form-control"
+                                                                id="editServiceImage{{ $service->id }}"
+                                                                name="editServiceImage">
                                                             @if ($service->image)
-                                                                <img src="{{ asset('storage/' . $service->image) }}"
-                                                                    class="img-fluid rounded">
-                                                            @else
-                                                                <p>Aucune Image Disponible</p>
+                                                                <small class="text-muted">Image Actuelle :
+                                                                    {{ $service->image }}</small>
                                                             @endif
                                                         </div>
-                                                        <div class="modal-footer">
-                                                            <button type="button" class="btn btn-secondary"
-                                                                data-dismiss="modal">Fermer</button>
-                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="submit" class="btn btn-warning">Enregistrer
+                                                            les
+                                                            Modifications</button>
+                                                        <button type="button" class="btn btn-secondary"
+                                                            data-dismiss="modal">Fermer</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+
+
+
+                                        <div class="modal fade" id="viewImageModal{{ $service->id }}" tabindex="-1">
+                                            <div class="modal-dialog modal-dialog-centered">
+                                                <div class="modal-content">
+                                                    <div class="modal-body text-center">
+                                                        @if ($service->image)
+                                                            <img src="{{ asset('storage/' . $service->image) }}"
+                                                                class="img-fluid rounded">
+                                                        @else
+                                                            <p>Aucune Image Disponible</p>
+                                                        @endif
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary"
+                                                            data-dismiss="modal">Fermer</button>
                                                     </div>
                                                 </div>
                                             </div>
-                                        @endforeach
-                                    </tbody>
+                                        </div>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-                                </table>
+            <!-- Testimonials Section -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header bg-primary text-white text-center py-4">
+                            <h2 class="h3 font-weight-bold"><i class="bi bi-chat-left-quote"></i> Témoignages</h2>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <button class="btn btn-primary" data-toggle="modal"
+                                    data-target="#addTestimonialModal">Ajouter un Témoignage</button>
+                            </div>
+                            <table class="table table-hover">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Nom du Client</th>
+                                        <th>Profession</th>
+                                        <th>Image</th>
+                                        <th>Témoignage</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($testimonials as $testimonial)
+                                        <tr>
+                                            <td>{{ $testimonial->id }}</td>
+                                            <td>{{ $testimonial->clientName }}</td>
+                                            <td>{{ $testimonial->clientProfession }}</td>
+                                            <td>
+                                                @if ($testimonial->image)
+                                                    <img src="{{ asset('storage/' . $testimonial->image) }}"
+                                                        class="img-fluid rounded" style="width: 50px;"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#viewImageModal{{ $testimonial->id }}">
+                                                @else
+                                                    <span class="text-muted">Pas d'image</span>
+                                                @endif
+
+                                            </td>
+                                            <td>{{ $testimonial->testimonialText }}</td>
+                                            <td>
+
+                                                <form action="{{ route('testimonials.destroy', $testimonial->id) }}"
+                                                    method="POST" style="display:inline;">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button class="btn btn-sm btn-danger delete-btn">Supprimer</button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                        <div class="modal fade" id="viewImageModal{{ $testimonial->id }}"
+                                            tabindex="-1">
+                                            <div class="modal-dialog modal-dialog-centered">
+                                                <div class="modal-content">
+                                                    <div class="modal-body text-center">
+                                                        @if ($testimonial->image)
+                                                            <img src="{{ asset('storage/' . $testimonial->image) }}"
+                                                                class="img-fluid rounded">
+                                                        @else
+                                                            <p>Aucune image disponible</p>
+                                                        @endif
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary"
+                                                            data-dismiss="modal">Fermer</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </tbody>
+                            </table>
+
+                        </div>
+                        <div class="modal fade" id="addTestimonialModal" tabindex="-1">
+                            <div class="modal-dialog">
+                                <form action="{{ route('testimonials.store') }}" method="POST"
+                                    enctype="multipart/form-data" class="modal-content">
+                                    @csrf
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Ajouter un Nouveau Témoignage</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                            aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="mb-3">
+                                            <label for="clientName" class="form-label">Nom du Client</label>
+                                            <input type="text" class="form-control" id="clientName" name="clientName"
+                                                required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="clientProfession" class="form-label">Profession</label>
+                                            <input type="text" class="form-control" id="clientProfession"
+                                                name="clientProfession" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="image" class="form-label">Image</label>
+                                            <input type="file" class="form-control" id="image" name="image">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="testimonialText" class="form-label">Témoignage</label>
+                                            <textarea class="form-control" id="testimonialText" name="testimonialText" rows="3" required></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="submit" class="btn btn-primary">Ajouter le Témoignage</button>
+                                        <button type="button" class="btn btn-secondary"
+                                            data-bs-dismiss="modal">Fermer</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Team Management Section -->
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header bg-secondary text-white text-center py-4">
+                            <h2 class="h3 font-weight-bold">Gérer les Membres de l'Équipe</h2>
+                        </div>
+                        <button class="btn btn-primary mb-3" data-toggle="modal" data-target="#addMemberModal">Ajouter un
+                            Nouveau Membre</button>
+                        <div class="card-body">
+                            <h5 class="card-title mb-3"><i class="bi bi-person"></i> Membres de l'Équipe</h5>
+                            <table class="table table-hover">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Nom du Membre</th>
+                                        <th>Poste</th>
+                                        <th>Image</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($teamMembers as $member)
+                                        <tr>
+                                            <td>{{ $member->id }}</td>
+                                            <td>{{ $member->name }}</td>
+                                            <td>{{ $member->position }}</td>
+                                            <td>
+                                                @if ($member->image)
+                                                    <img src="{{ asset('storage/' . $member->image) }}"
+                                                        class="img-fluid rounded" style="width: 50px;"
+                                                        data-toggle="modal"
+                                                        data-target="#viewImageModal{{ $member->id }}">
+                                                @else
+                                                    <span class="text-muted">Aucune Image</span>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                <form action="{{ route('team.destroy', $member->id) }}" method="POST"
+                                                    style="display:inline;">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button class="btn btn-sm btn-danger delete-btn">Supprimer</button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="modal fade" id="addMemberModal" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <form action="{{ route('team.store') }}" method="POST" enctype="multipart/form-data"
+                                    class="modal-content">
+                                    @csrf
+                                    <!-- En-tête du modal -->
+                                    <div class="modal-header bg-info text-white">
+                                        <h5 class="modal-title">Ajouter un Nouveau Membre</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+
+                                    <!-- Corps du modal -->
+                                    <div class="modal-body">
+                                        <!-- Champ Utilisateur -->
+                                        <div class="modal-body">
+                                            <!-- Champ Utilisateur -->
+                                            <div class="form-group">
+                                                <label for="user" class="form-label">Utilisateur</label>
+                                                <select class="form-control" id="user" name="name" required>
+                                                    <option value="" selected>Sélectionner un utilisateur</option>
+                                                    @foreach ($users as $user)
+                                                        <option value="{{ $user->nom . ' ' . $user->prenom }}">
+                                                            {{ $user->nom }} {{ $user->prenom }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <!-- Champ Position -->
+                                        <div class="form-group">
+                                            <label for="position" class="form-label">Poste</label>
+                                            <input type="text" class="form-control" id="position" name="position"
+                                                placeholder="Exemple : Manager" required>
+                                        </div>
+
+                                        <!-- Lien Facebook -->
+                                        <div class="form-group">
+                                            <label for="facebook_url" class="form-label">URL Facebook</label>
+                                            <input type="url" class="form-control" id="facebook_url"
+                                                name="facebook_url" placeholder="https://facebook.com/username">
+                                        </div>
+
+                                        <!-- Lien Twitter -->
+                                        <div class="form-group">
+                                            <label for="twitter_url" class="form-label">URL Twitter</label>
+                                            <input type="url" class="form-control" id="twitter_url"
+                                                name="twitter_url" placeholder="https://twitter.com/username">
+                                        </div>
+
+                                        <!-- Lien LinkedIn -->
+                                        <div class="form-group">
+                                            <label for="linkedin_url" class="form-label">URL LinkedIn</label>
+                                            <input type="url" class="form-control" id="linkedin_url"
+                                                name="linkedin_url" placeholder="https://linkedin.com/in/username">
+                                        </div>
+
+                                        <!-- Champ Image -->
+                                        <div class="form-group">
+                                            <label for="image" class="form-label">Image</label>
+                                            <input type="file" class="form-control-file" id="image"
+                                                name="image">
+                                        </div>
+                                    </div>
+
+                                    <!-- Pied du modal -->
+                                    <div class="modal-footer">
+                                        <button type="submit" class="btn btn-primary">Ajouter le Membre</button>
+                                        <button type="button" class="btn btn-secondary"
+                                            data-dismiss="modal">Fermer</button>
+                                    </div>
+                                </form>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="mt-4 text-center">
+            <p class="text-muted">&copy; 2025 Dashfront. All rights reserved.</p>
+        </footer>
     </div>
 @endsection
 
 @section('js')
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.min.js"></script>
+
     <script src="cssdste/jquery/jquery.min.js"></script>
     <script src="cssdste/bootstrap/js/bootstrap.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.1/dist/sweetalert2.all.min.js"></script>
