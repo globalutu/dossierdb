@@ -71,6 +71,10 @@ Route::group([
 	Route::get('/modif-utilisateur-{id}', 'App\Http\Controllers\UtilisateurController@getmodifyuser')->name('MTU');
 	Route::post('/modif-utilisateur', 'App\Http\Controllers\UtilisateurController@modifyuser')->name('MTUS');
 	Route::get('/getallusers', 'App\Http\Controllers\GestionnaireController@getalluserssys')->name('GAUS');
+	Route::post('/update-emolu',  'App\Http\Controllers\UtilisateurController@updateEmolu')->name('update-emolu');
+	Route::get('/dossier/{id}', 'App\Http\Controllers\UtilisateurController@getDossier');
+
+
 
 	//////////////////////////////////** Rôle **/////////////////////////////////////////////////////////////////
 	Route::get('/listroles', 'App\Http\Controllers\RoleController@listrole')->name('GR');

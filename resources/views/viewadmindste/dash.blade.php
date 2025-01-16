@@ -1,6 +1,7 @@
 @extends('templatedste._temp')
 @section('css')
     <link href="cssdste/bootstrap-select/css/bootstrap-select.css" rel="stylesheet" />
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 @endsection
 
 @section('content')
@@ -103,7 +104,8 @@
                             <label for="prenom">Prenom</label>
                             <div class="form-group">
                                 <div class="form-line">
-                                    <input type="text" id="prenom" name="prenom" class="form-control" placeholder="">
+                                    <input type="text" id="prenom" name="prenom" class="form-control"
+                                        placeholder="">
                                 </div>
                             </div>
                         </div>
@@ -223,82 +225,47 @@
         </div>
     </div>
 
+
+
     <div class="modal fade" id="update" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-                            aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title" id="myModalLabel">MODIFICATION : </h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title" id="myModalLabel">
+                        AJOUTER / MODIFIER EMOLUMENT : <span id="infoadd"></span>
+                    </h4>
                 </div>
                 <div class="modal-body">
-                    <label id="infoadd"></label>
-
-                    <div class="row clearfix">
-
-                        <div class="col-md-6">
-                            <label for="montantwrite"> Emolument : </label>
-                            <div class="form-group">
-                                <div class="form-line">
-                                    <input type="number" id="montantwrite" name="montantwrite" class="form-control"
-                                        placeholder="">
-                                </div>
-                            </div>
+                    <form id="updateForm">
+                        <input type="hidden" id="idadd" name="idadd">
+                        <div class="form-group">
+                            <label for="montantwrite">Emolument :</label>
+                            <input type="number" id="montantwrite" name="montantwrite" class="form-control"
+                                placeholder="Montant">
                         </div>
-                    </div>
-                    <div class="row clearfix">
-
-                        <div class="col-md-12">
+                        <div class="form-group">
                             <label for="objet">Objet :</label>
-                            <div class="form-group">
-                                <div class="form-line">
-                                    <textarea type="text" id="objet" name="objet" class="form-control" placeholder=""></textarea>
-                                </div>
-                            </div>
+                            <textarea id="objet" name="objet" class="form-control" placeholder="Description"></textarea>
                         </div>
-                    </div>
-                    <div class="row clearfix">
-                        <div class="col-md-6">
-                            <label for="datedebut">Date début</label>
-                            <div class="form-group">
-                                <div class="form-line">
-                                    <input type="date" id="datedebut" name="datedebut" class="form-control"
-                                        placeholder="">
-                                </div>
-                            </div>
+                        <div class="form-group">
+                            <label for="commentaire">Commentaire :</label>
+                            <textarea id="commentaire" name="commentaire" class="form-control" placeholder="Commentaires"></textarea>
                         </div>
-
-                        <div class="col-md-6">
-                            <label for="datefin">Date fin</label>
-                            <div class="form-group">
-                                <div class="form-line">
-                                    <input type="date" id="datefin" name="datefin" class="form-control"
-                                        placeholder="">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row clearfix">
-                        <div class="col-md-12">
-                            <label for="commentaire">Commentaire</label>
-                            <div class="form-group">
-                                <div class="form-line">
-                                    <textarea type="text" id="commentaire" name="commentaire" class="form-control" placeholder=""></textarea>
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
+                    </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-default btn-sm waves-effect waves-light"
+                    <button type="button" class="btn btn-default btn-sm waves-effect"
                         data-dismiss="modal">FERMER</button>
-                    <button onclick="setupdatedossiers()" style="background-color: #795548; color: white"
-                        class="btn  waves-effect">MODIFIER</button>
+                    <button type="button" class="btn btn-primary waves-effect"
+                        onclick="updatedossiers()">MODIFIER</button>
                 </div>
             </div>
         </div>
     </div>
+
 
     <div class="modal fade" id="affecter" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
         <div class="modal-dialog" role="document">
@@ -384,6 +351,70 @@
     </div>
 
     <script type="text/javascript">
+        async function getupdatemodal(id, nom, prenom) {
+            console.log('ID:', id);
+            console.log('Nom:', nom);
+            console.log('Prénom:', prenom);
+
+            // Affectation de l'ID au champ caché
+            document.getElementById('idadd').value = id;
+
+            // Mise à jour du titre du modal avec le nom et prénom
+            document.getElementById('infoadd').textContent = `${nom} ${prenom}`;
+        }
+
+
+
+        async function updatedossiers() {
+            const form = document.getElementById('updateForm');
+            const formData = new FormData(form);
+
+            const id = document.getElementById('idadd').value;
+            if (!id) {
+                document.getElementById('infoadd').textContent =
+                    "Erreur : L'ID est manquant."; // Affichage de l'erreur dans le modal
+                return;
+            }
+
+            formData.append('id', id);
+
+            try {
+                const response = await fetch('/update-emolu', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
+                            'content'),
+                    },
+                    body: formData,
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    document.getElementById('infoadd').textContent = 'Erreur : ' + JSON.stringify(errorData
+                        .message); // Affichage de l'erreur dans le modal
+                    return;
+                }
+
+                const result = await response.json();
+                if (result.success) {
+                    document.getElementById('infoadd').textContent = result
+                        .message; // Affichage du message de succès dans le modal
+                    $('#update').modal('hide');
+                    getlistdossiers();
+                } else {
+                    document.getElementById('infoadd').textContent = 'Erreur : ' + result
+                        .message; // Affichage de l'erreur dans le modal
+                }
+            } catch (error) {
+                console.error('Erreur réseau :', error);
+                document.getElementById('infoadd').textContent =
+                    'Une erreur est survenue lors de la mise à jour.'; // Affichage de l'erreur réseau
+            }
+        }
+
+
+
+
         const sessionActions = @json(session('auto_action'));
 
         let listservices = "";
@@ -459,18 +490,18 @@
                                                <th data-priority="3">Date début</th>
                                          
                                             ${sessionActions.includes("see_montant_ouv") ? `
-                                                <th data-priority="3">Montant d'ouverture</th> 
-                                                ` : ''}
-                                            <th data-priority="3">Emulement</th> 
+                                                                                                                                                                                                                                                        <th data-priority="3">Montant d'ouverture</th> 
+                                                                                                                                                                                                                                                        ` : ''}
+                                            <th data-priority="3">Emolument</th> 
                                             ${sessionActions.includes("see_montant_payer") ? `
-                                                <th data-priority="3">Montant payer</th> 
-                                                ` : ''}
+                                                                                                                                                                                                                                                        <th data-priority="3">Montant payer</th> 
+                                                                                                                                                                                                                                                        ` : ''}
                                             ${sessionActions.includes("see_montant_restant") ? `
-                                                <th data-priority="3">Montant restant</th> 
-                                                ` : ''}
+                                                                                                                                                                                                                                                        <th data-priority="3">Montant restant</th> 
+                                                                                                                                                                                                                                                        ` : ''}
                                             ${sessionActions.includes("see_poste_doc") ? `
-                                                <th data-priority="3">Poste</th> 
-                                                ` : ''}
+                                                                                                                                                                                                                                                        <th data-priority="3">Poste</th> 
+                                                                                                                                                                                                                                                        ` : ''}
                                             <th data-priority="6">Actions</th>
 
                             `;
@@ -493,56 +524,56 @@
                                     <td> ${ formatDate(dossier.datedebut) }</td>
                                    
                                     ${sessionActions.includes("see_montant_ouv") ? `
-                                        <td style="text-align: right;"> ${ new Intl.NumberFormat('fr-FR').format(dossier.montant) }</td>
-                                        ` : ''}
-                                     <td> ${ new Intl.NumberFormat('fr-FR').format(dossier.payer) } </td>
+                                                                                                                                                                                                                                                <td style="text-align: right;"> ${ new Intl.NumberFormat('fr-FR').format(dossier.montant) }</td>
+                                                                                                                                                                                                                                                ` : ''}
+                                     <td> ${ new Intl.NumberFormat('fr-FR').format(dossier.revenu) } </td>
                                     ${sessionActions.includes("see_montant_payer") ? `
-                                        <td style="text-align: right;"> ${ new Intl.NumberFormat('fr-FR').format(dossier.payer) } </td>
-                                        ` : ''}
+                                                                                                                                                                                                                                                <td style="text-align: right;"> ${ new Intl.NumberFormat('fr-FR').format(dossier.payer) } </td>
+                                                                                                                                                                                                                                                ` : ''}
                                     ${sessionActions.includes("see_montant_restant") ? `
-                                        <td style="text-align: right;"> ${ new Intl.NumberFormat('fr-FR').format(dossier.montant - dossier.payer) }</td>
-                                        ` : ''}
+                                                                                                                                                                                                                                                <td style="text-align: right;"> ${ new Intl.NumberFormat('fr-FR').format(dossier.revenu- dossier.payer) }</td>
+                                                                                                                                                                                                                                                ` : ''}
                                     ${sessionActions.includes("see_poste_doc") ? `
-                                        <td> ${ (dossier.nomuser) ?? '' } ${ (dossier.prenomuser ) ?? ''}</td>
-                                        ` : ''}
+                                                                                                                                                                                                                                                <td> ${ (dossier.nomuser) ?? '' } ${ (dossier.prenomuser ) ?? ''}</td>
+                                                                                                                                                                                                                                                ` : ''}
 
                                     <td>
                                         ${sessionActions.includes("update_doc") ? `
-                                            <button type="button" title="Modifier"  class="btn btn-primary btn-circle btn-xs  margin-bottom-10 waves-effect waves-light" data-toggle="modal" data-target="#update" onClick="getupdatemodal( '${ dossier.nom }' , '${ dossier.prenom }',  )">
-                                                    =<i class="material-icons">system_update_alt</i> 
-                                                </button>` : ''} 
+                                                                                                                                                                                                                                                    <button type="button" title="Modifier"  class="btn btn-primary btn-circle btn-xs  margin-bottom-10 waves-effect waves-light" data-toggle="modal" data-target="#update" onClick="getupdatemodal( '${dossier.id}','${ dossier.nom }' , '${ dossier.prenom }',  )">
+                                                                                                                                                                                                                                                            =<i class="material-icons">system_update_alt</i> 
+                                                                                                                                                                                                                                                        </button>` : ''} 
 
 
 
                                         ${(dossier.poste == null || dossier.poste == '') ? `
-                                                ${sessionActions.includes("send_doc_poste") ? `
+                                                                                                                                                                                                                                                        ${sessionActions.includes("send_doc_poste") ? `
                                             <button type="button" title="Affecter" class="btn btn-primary btn-circle btn-xs margin-bottom-10 waves-effect waves-light" data-toggle="modal" data-target="#affecter" 
                                             onClick="setutilisateurinposte('${dossier.id}')">
                                             <i class="material-icons">account_circle</i>
                                             </button>` : ''}` : `
-                                                ${sessionActions.includes("send_doc_poste") ? `
+                                                                                                                                                                                                                                                        ${sessionActions.includes("send_doc_poste") ? `
                                             <button type="button" title="Reaffecter" class="btn btn-primary btn-circle btn-xs margin-bottom-10 waves-effect waves-light" data-toggle="modal" data-target="#reaffecter" 
                                             onClick="updateuserinposte('${dossier.id}', '${dossier.poste}')">
                                             <i class="material-icons">account_circle</i>
                                             </button>` : ''}`}
 
                                         ${sessionActions.includes("renc_client_doc") ? `
-                                            <button type="button" title="Rencontre"  class="btn btn-primary btn-circle btn-xs  margin-bottom-10 waves-effect waves-light">
-                                                    <a href="{{ route('RDOS') }}?id=${ dossier.id }" style="color:white;"> <i class="material-icons">group</i></a> 
-                                                </button>` : ''}
+                                                                                                                                                                                                                                                    <button type="button" title="Rencontre"  class="btn btn-primary btn-circle btn-xs  margin-bottom-10 waves-effect waves-light">
+                                                                                                                                                                                                                                                            <a href="{{ route('RDOS') }}?id=${ dossier.id }" style="color:white;"> <i class="material-icons">group</i></a> 
+                                                                                                                                                                                                                                                        </button>` : ''}
 
                                         ${sessionActions.includes("op_caisse_doc") ? `
-                                            <button type="button" title="Caisse"  class="btn btn-primary btn-circle btn-xs  margin-bottom-10 waves-effect waves-light">
-                                                    <a href="{{ route('GCSD') }}?id=${ dossier.id }" style="color:white;"> <i class="material-icons">euro_symbol</i></a> 
-                                                </button>` : ''}
+                                                                                                                                                                                                                                                    <button type="button" title="Caisse"  class="btn btn-primary btn-circle btn-xs  margin-bottom-10 waves-effect waves-light">
+                                                                                                                                                                                                                                                            <a href="{{ route('GCSD') }}?id=${ dossier.id }" style="color:white;"> <i class="material-icons">euro_symbol</i></a> 
+                                                                                                                                                                                                                                                        </button>` : ''}
                                         
                                         ${sessionActions.includes("op_treso_doc") ? `
-                                            <button type="button" title="Trésorerie"  class="btn btn-primary btn-circle btn-xs  margin-bottom-10 waves-effect waves-light">
-                                                    <a href="{{ route('TDOS') }}?id=${ dossier.id }" style="color:white;"> <i class="material-icons">poll</i></a> 
-                                                </button>` : ''}
+                                                                                                                                                                                                                                                    <button type="button" title="Trésorerie"  class="btn btn-primary btn-circle btn-xs  margin-bottom-10 waves-effect waves-light">
+                                                                                                                                                                                                                                                            <a href="{{ route('TDOS') }}?id=${ dossier.id }" style="color:white;"> <i class="material-icons">poll</i></a> 
+                                                                                                                                                                                                                                                        </button>` : ''}
 
                                         ${sessionActions.includes("delete_doc") ? `
-                                            <button type="button" title="Supprimer"  class="btn btn-danger btn-circle btn-xs  margin-bottom-10 waves-effect waves-light"><a href="{{ route('DDOS') }}?id=${ dossier.id }" style="color:white;"><i class="material-icons">delete_sweep</i></a> </button>` : ''}
+                                                                                                                                                                                                                                                    <button type="button" title="Supprimer"  class="btn btn-danger btn-circle btn-xs  margin-bottom-10 waves-effect waves-light"><a href="{{ route('DDOS') }}?id=${ dossier.id }" style="color:white;"><i class="material-icons">delete_sweep</i></a> </button>` : ''}
                                     </td>
                                 `;
 
