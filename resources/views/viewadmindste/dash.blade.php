@@ -226,7 +226,6 @@
     </div>
 
 
-
     <div class="modal fade" id="update" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -238,17 +237,22 @@
                         AJOUTER / MODIFIER EMOLUMENT : <span id="infoadd"></span>
                     </h4>
                 </div>
+                <div>
+                    <span id="infoemol">
+
+                    </span>
+                </div>
                 <div class="modal-body">
                     <form id="updateForm">
                         <input type="hidden" id="idadd" name="idadd">
                         <div class="form-group">
-                            <label for="montantwrite">Emolument :</label>
-                            <input type="number" id="montantwrite" name="montantwrite" class="form-control"
-                                placeholder="Montant">
+                            <label for="montantEmol">Emolument :</label>
+                            <input type="number" id="montantEmol" name="montantEmol" value=""
+                                class="form-control" placeholder="Montant">
                         </div>
                         <div class="form-group">
-                            <label for="objet">Objet :</label>
-                            <textarea id="objet" name="objet" class="form-control" placeholder="Description"></textarea>
+                            <label for="objetEmol">Objet :</label>
+                            <textarea id="objetEmol" name="objetEmol" class="form-control" placeholder="Description"></textarea>
                         </div>
                         <div class="form-group">
                             <label for="commentaire">Commentaire :</label>
@@ -261,10 +265,12 @@
                         data-dismiss="modal">FERMER</button>
                     <button type="button" class="btn btn-primary waves-effect"
                         onclick="updatedossiers()">MODIFIER</button>
+
                 </div>
             </div>
         </div>
     </div>
+
 
 
     <div class="modal fade" id="affecter" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
@@ -349,6 +355,8 @@
             </div>
         </div>
     </div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
     <script type="text/javascript">
         async function getupdatemodal(id, nom, prenom) {
@@ -356,31 +364,47 @@
             console.log('Nom:', nom);
             console.log('Prénom:', prenom);
 
-            // Affectation de l'ID au champ caché
+
             document.getElementById('idadd').value = id;
 
-            // Mise à jour du titre du modal avec le nom et prénom
+
             document.getElementById('infoadd').textContent = `${nom} ${prenom}`;
         }
 
 
-
         async function updatedossiers() {
+
+
             const form = document.getElementById('updateForm');
             const formData = new FormData(form);
 
+
+            const montant = document.getElementById('montantEmol').value;
+            const objet = document.getElementById('objetEmol').value;
+
+            if (!montant) {
+                console.log("valide");
+                document.getElementById('infoemol').textContent =
+                    "Erreur : Le montant est requis et doit être un nombre.";
+                return;
+            }
+            if (!objet.trim()) {
+                document.getElementById('infoemol').textContent = "Erreur : L'objet est requis.";
+                return;
+            }
+
             const id = document.getElementById('idadd').value;
             if (!id) {
-                document.getElementById('infoadd').textContent =
-                    "Erreur : L'ID est manquant."; // Affichage de l'erreur dans le modal
+                document.getElementById('infoemol').textContent =
+                    "Erreur : L'ID est manquant.";
                 return;
             }
 
             formData.append('id', id);
 
             try {
-                const response = await fetch('/update-emolu', {
-                    method: 'POST',
+                const response = await fetch("{{ route('update-emolu') }}", {
+                    method: 'Post',
                     headers: {
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
                             'content'),
@@ -388,27 +412,25 @@
                     body: formData,
                 });
 
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    document.getElementById('infoadd').textContent = 'Erreur : ' + JSON.stringify(errorData
-                        .message); // Affichage de l'erreur dans le modal
-                    return;
-                }
-
                 const result = await response.json();
+
                 if (result.success) {
-                    document.getElementById('infoadd').textContent = result
-                        .message; // Affichage du message de succès dans le modal
-                    $('#update').modal('hide');
-                    getlistdossiers();
+                    document.getElementById('infoemol').textContent = result
+                        .message;
+                    setTimeout(() => {
+                        $('#update').modal('hide');
+
+                        window.location.reload();
+                    }, 3000);
+
                 } else {
-                    document.getElementById('infoadd').textContent = 'Erreur : ' + result
-                        .message; // Affichage de l'erreur dans le modal
+                    document.getElementById('infoemol').textContent = 'Erreur : ' + result
+                        .message;
                 }
             } catch (error) {
                 console.error('Erreur réseau :', error);
-                document.getElementById('infoadd').textContent =
-                    'Une erreur est survenue lors de la mise à jour.'; // Affichage de l'erreur réseau
+                document.getElementById('infoemol').textContent =
+                    'Une erreur est survenue lors de la mise à jour.';
             }
         }
 
@@ -490,18 +512,18 @@
                                                <th data-priority="3">Date début</th>
                                          
                                             ${sessionActions.includes("see_montant_ouv") ? `
-                                                                                                                                                                                                                                                        <th data-priority="3">Montant d'ouverture</th> 
-                                                                                                                                                                                                                                                        ` : ''}
+                                                                                                                                                                                                                                                                                                                                                                                    <th data-priority="3">Montant d'ouverture</th> 
+                                                                                                                                                                                                                                                                                                                                                                                    ` : ''}
                                             <th data-priority="3">Emolument</th> 
                                             ${sessionActions.includes("see_montant_payer") ? `
-                                                                                                                                                                                                                                                        <th data-priority="3">Montant payer</th> 
-                                                                                                                                                                                                                                                        ` : ''}
+                                                                                                                                                                                                                                                                                                                                                                                    <th data-priority="3">Montant payer</th> 
+                                                                                                                                                                                                                                                                                                                                                                                    ` : ''}
                                             ${sessionActions.includes("see_montant_restant") ? `
-                                                                                                                                                                                                                                                        <th data-priority="3">Montant restant</th> 
-                                                                                                                                                                                                                                                        ` : ''}
+                                                                                                                                                                                                                                                                                                                                                                                    <th data-priority="3">Montant restant</th> 
+                                                                                                                                                                                                                                                                                                                                                                                    ` : ''}
                                             ${sessionActions.includes("see_poste_doc") ? `
-                                                                                                                                                                                                                                                        <th data-priority="3">Poste</th> 
-                                                                                                                                                                                                                                                        ` : ''}
+                                                                                                                                                                                                                                                                                                                                                                                    <th data-priority="3">Poste</th> 
+                                                                                                                                                                                                                                                                                                                                                                                    ` : ''}
                                             <th data-priority="6">Actions</th>
 
                             `;
@@ -524,56 +546,56 @@
                                     <td> ${ formatDate(dossier.datedebut) }</td>
                                    
                                     ${sessionActions.includes("see_montant_ouv") ? `
-                                                                                                                                                                                                                                                <td style="text-align: right;"> ${ new Intl.NumberFormat('fr-FR').format(dossier.montant) }</td>
-                                                                                                                                                                                                                                                ` : ''}
+                                                                                                                                                                                                                                                                                                                                                                            <td style="text-align: right;"> ${ new Intl.NumberFormat('fr-FR').format(dossier.montant) }</td>
+                                                                                                                                                                                                                                                                                                                                                                            ` : ''}
                                      <td> ${ new Intl.NumberFormat('fr-FR').format(dossier.revenu) } </td>
                                     ${sessionActions.includes("see_montant_payer") ? `
-                                                                                                                                                                                                                                                <td style="text-align: right;"> ${ new Intl.NumberFormat('fr-FR').format(dossier.payer) } </td>
-                                                                                                                                                                                                                                                ` : ''}
+                                                                                                                                                                                                                                                                                                                                                                            <td style="text-align: right;"> ${ new Intl.NumberFormat('fr-FR').format(dossier.payer) } </td>
+                                                                                                                                                                                                                                                                                                                                                                            ` : ''}
                                     ${sessionActions.includes("see_montant_restant") ? `
-                                                                                                                                                                                                                                                <td style="text-align: right;"> ${ new Intl.NumberFormat('fr-FR').format(dossier.revenu- dossier.payer) }</td>
-                                                                                                                                                                                                                                                ` : ''}
+                                                                                                                                                                                                                                                                                                                                                                            <td style="text-align: right;"> ${ new Intl.NumberFormat('fr-FR').format(dossier.revenu- dossier.payer) }</td>
+                                                                                                                                                                                                                                                                                                                                                                            ` : ''}
                                     ${sessionActions.includes("see_poste_doc") ? `
-                                                                                                                                                                                                                                                <td> ${ (dossier.nomuser) ?? '' } ${ (dossier.prenomuser ) ?? ''}</td>
-                                                                                                                                                                                                                                                ` : ''}
+                                                                                                                                                                                                                                                                                                                                                                            <td> ${ (dossier.nomuser) ?? '' } ${ (dossier.prenomuser ) ?? ''}</td>
+                                                                                                                                                                                                                                                                                                                                                                            ` : ''}
 
                                     <td>
                                         ${sessionActions.includes("update_doc") ? `
-                                                                                                                                                                                                                                                    <button type="button" title="Modifier"  class="btn btn-primary btn-circle btn-xs  margin-bottom-10 waves-effect waves-light" data-toggle="modal" data-target="#update" onClick="getupdatemodal( '${dossier.id}','${ dossier.nom }' , '${ dossier.prenom }',  )">
-                                                                                                                                                                                                                                                            =<i class="material-icons">system_update_alt</i> 
-                                                                                                                                                                                                                                                        </button>` : ''} 
+                                                                                                                                                                                                                                                                                                                                                                                <button type="button" title="Modifier"  class="btn btn-primary btn-circle btn-xs  margin-bottom-10 waves-effect waves-light" data-toggle="modal" data-target="#update" onClick="getupdatemodal( '${dossier.id}','${ dossier.nom }' , '${ dossier.prenom }',  )">
+                                                                                                                                                                                                                                                                                                                                                                                        =<i class="material-icons">system_update_alt</i> 
+                                                                                                                                                                                                                                                                                                                                                                                    </button>` : ''} 
 
 
 
                                         ${(dossier.poste == null || dossier.poste == '') ? `
-                                                                                                                                                                                                                                                        ${sessionActions.includes("send_doc_poste") ? `
+                                                                                                                                                                                                                                                                                                                                                                                    ${sessionActions.includes("send_doc_poste") ? `
                                             <button type="button" title="Affecter" class="btn btn-primary btn-circle btn-xs margin-bottom-10 waves-effect waves-light" data-toggle="modal" data-target="#affecter" 
                                             onClick="setutilisateurinposte('${dossier.id}')">
                                             <i class="material-icons">account_circle</i>
                                             </button>` : ''}` : `
-                                                                                                                                                                                                                                                        ${sessionActions.includes("send_doc_poste") ? `
+                                                                                                                                                                                                                                                                                                                                                                                    ${sessionActions.includes("send_doc_poste") ? `
                                             <button type="button" title="Reaffecter" class="btn btn-primary btn-circle btn-xs margin-bottom-10 waves-effect waves-light" data-toggle="modal" data-target="#reaffecter" 
                                             onClick="updateuserinposte('${dossier.id}', '${dossier.poste}')">
                                             <i class="material-icons">account_circle</i>
                                             </button>` : ''}`}
 
                                         ${sessionActions.includes("renc_client_doc") ? `
-                                                                                                                                                                                                                                                    <button type="button" title="Rencontre"  class="btn btn-primary btn-circle btn-xs  margin-bottom-10 waves-effect waves-light">
-                                                                                                                                                                                                                                                            <a href="{{ route('RDOS') }}?id=${ dossier.id }" style="color:white;"> <i class="material-icons">group</i></a> 
-                                                                                                                                                                                                                                                        </button>` : ''}
+                                                                                                                                                                                                                                                                                                                                                                                <button type="button" title="Rencontre"  class="btn btn-primary btn-circle btn-xs  margin-bottom-10 waves-effect waves-light">
+                                                                                                                                                                                                                                                                                                                                                                                        <a href="{{ route('RDOS') }}?id=${ dossier.id }" style="color:white;"> <i class="material-icons">group</i></a> 
+                                                                                                                                                                                                                                                                                                                                                                                    </button>` : ''}
 
                                         ${sessionActions.includes("op_caisse_doc") ? `
-                                                                                                                                                                                                                                                    <button type="button" title="Caisse"  class="btn btn-primary btn-circle btn-xs  margin-bottom-10 waves-effect waves-light">
-                                                                                                                                                                                                                                                            <a href="{{ route('GCSD') }}?id=${ dossier.id }" style="color:white;"> <i class="material-icons">euro_symbol</i></a> 
-                                                                                                                                                                                                                                                        </button>` : ''}
+                                                                                                                                                                                                                                                                                                                                                                                <button type="button" title="Caisse"  class="btn btn-primary btn-circle btn-xs  margin-bottom-10 waves-effect waves-light">
+                                                                                                                                                                                                                                                                                                                                                                                        <a href="{{ route('GCSD') }}?id=${ dossier.id }" style="color:white;"> <i class="material-icons">euro_symbol</i></a> 
+                                                                                                                                                                                                                                                                                                                                                                                    </button>` : ''}
                                         
                                         ${sessionActions.includes("op_treso_doc") ? `
-                                                                                                                                                                                                                                                    <button type="button" title="Trésorerie"  class="btn btn-primary btn-circle btn-xs  margin-bottom-10 waves-effect waves-light">
-                                                                                                                                                                                                                                                            <a href="{{ route('TDOS') }}?id=${ dossier.id }" style="color:white;"> <i class="material-icons">poll</i></a> 
-                                                                                                                                                                                                                                                        </button>` : ''}
+                                                                                                                                                                                                                                                                                                                                                                                <button type="button" title="Trésorerie"  class="btn btn-primary btn-circle btn-xs  margin-bottom-10 waves-effect waves-light">
+                                                                                                                                                                                                                                                                                                                                                                                        <a href="{{ route('TDOS') }}?id=${ dossier.id }" style="color:white;"> <i class="material-icons">poll</i></a> 
+                                                                                                                                                                                                                                                                                                                                                                                    </button>` : ''}
 
                                         ${sessionActions.includes("delete_doc") ? `
-                                                                                                                                                                                                                                                    <button type="button" title="Supprimer"  class="btn btn-danger btn-circle btn-xs  margin-bottom-10 waves-effect waves-light"><a href="{{ route('DDOS') }}?id=${ dossier.id }" style="color:white;"><i class="material-icons">delete_sweep</i></a> </button>` : ''}
+                                                                                                                                                                                                                                                                                                                                                                                <button type="button" title="Supprimer"  class="btn btn-danger btn-circle btn-xs  margin-bottom-10 waves-effect waves-light"><a href="{{ route('DDOS') }}?id=${ dossier.id }" style="color:white;"><i class="material-icons">delete_sweep</i></a> </button>` : ''}
                                     </td>
                                 `;
 

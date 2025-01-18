@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Role;
 use App\Models\Dossier;
 use App\Models\Utilisateur as Users;
+use Illuminate\Support\Facades\Validator;
 
 class UtilisateurController extends Controller
 {
@@ -24,34 +25,48 @@ class UtilisateurController extends Controller
     public function updateEmolu(Request $request)
     {
         try {
-            $validated = $request->validate([
+            $Msgerror
+                = [
+                    'id.required' => 'L\'ID est obligatoire.',
+                    'id.exists' => 'Le dossier spécifié est introuvable.',
+                    'montantEmol.required' => 'Le montant est obligatoire.',
+                    'montantEmol.numeric' => 'Le montant doit être un nombre.',
+                    'objetEmol.required' => 'L\'objet est obligatoire.',
+                ];
+            $validated = Validator::make($request->all(), [
                 'id' => 'required|exists:dossiers,id',
-                'montantwrite' => 'required|numeric',
-                'objet' => 'required|string',
+                'montantEmol' => 'required|numeric',
+                'objetEmol' => 'required|string',
                 'commentaire' => 'nullable|string|max:500',
-            ], [
-                'id.required' => 'L\'ID est obligatoire.',
-                'id.exists' => 'Le dossier spécifié est introuvable.',
-                'montantwrite.required' => 'Le montant est obligatoire.',
-                'montantwrite.numeric' => 'Le montant doit être un nombre.',
-                'objet.required' => 'L\'objet est obligatoire.',
-            ]);
+            ], $Msgerror);
 
-            // Mise à jour du dossier
-            $dossier = Dossier::findOrFail($validated['id']);
-            $dossier->revenu = $validated['montantwrite'];
-            $dossier->objet = $validated['objet'];
-            $dossier->commentaire = $validated['commentaire'];
-            $dossier->save();
+            if ($validated->fails()) {
+                $echec = $validated->errors()->all();
+                $stringechec = implode(' ', $echec);
+                return response()->json([
+                    'success' => false,
+                    'message' =>
+                    $stringechec
+                ], 422);
+            } else {
 
-            // Retour du message de succès
-            return response()->json(['success' => true, 'message' => 'Modification réussie']);
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            // Retourner les erreurs de validation
-            return response()->json(['success' => false, 'message' => $e->errors()], 422);
+                $dossier = Dossier::findOrFail($request->id);
+                $dossier->revenu = $request->montantEmol;
+                $dossier->objet = $request->objetEmol;
+                $dossier->commentaire = $request->commentaire;
+                $dossier->save();
+
+                return response()->json(['success' => true, 'message' => 'Modification réussie']);
+            }
         } catch (\Exception $e) {
-            // Gestion des erreurs générales
-            return response()->json(['success' => false, 'message' => 'Erreur interne : ' . $e->getMessage()], 500);
+
+            return response()->json(
+                [
+                    'success' => false,
+                    'message' => 'Erreur interne : ' . $e->getMessage()
+                ],
+                500
+            );
         }
     }
 
